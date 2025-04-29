@@ -23,46 +23,75 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 # Key Steps
 
-1. Deploy VM
+<h3>1. Set up VM</h3>
 <ul>
 <li>Created an image of Windows 10 Pro</li>
 <li>Network Security Group in Azure modified to allow all inbound traffic</li>
 <li>Connected remotely to VM to disable the firewall state for Domain, Private, and Public Profiles</li>
-  <br>
-      ⚠️ <em>This configuration is intended for lab use only. Exposing a VM with all inbound traffic and no firewall is highly insecure and should never be done in a production environment.</em>
+<br>
+  <blockquote><em><sub>This configuration is intended for lab use only. Exposing a VM with all inbound traffic and no firewall is highly insecure and should never be done in a production environment.</sub></em></blockquote>
 </ul>
 
 <br>
 
 ---
 
-2. Log Collection Configuration
+<h3>2. Log Collection Configuration</h3>
 
 <p align="left">
-  <img src="Failed-Event-Logs-VM.png" alt="Failed Event Logs in VM" length="300" width="800" height="500">
+  <img src="Failed-Event-Logs-VM.png" alt="Failed Event Logs in VM" length="200" width="700" height="400">
+    <br><blockquote><sub>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel to identify the origin of attempted attacks against the honeypot VM.</sub></em></blockquote>
 </p>
-
-<p align="left"><em>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel to identify the origin of attempted attacks against the honeypot VM.</em></p>
+<br>
 
 <ul>
-  <li>Created a central log repository (Log Analytics Workspace) to forward the VM logs there.</li>
-  <li>Deployed a Sentinel instance and connected it to LAW, enabling centralized security event monitoring through Sentinel.</li>
-  <li>Installed <em>Windows Security Events</em> within the Sentinel instance.
+  <li><strong>Created a Log Analytics Workspace (LAW)</strong> to serve as a central log repository for forwarding VM security events.</li>
+  <li><strong>Deployed Microsoft Sentinel</strong> and connected it to the LAW to enable centralized security event monitoring.</li>
+  <li>
+    <strong>Installed and configured Windows Security Events</strong> in Sentinel:
     <ul>
-      <li>Configured the <em>Windows Security Events via Azure Monitoring Agent (AMA)</em> connector to link the VM to LAW.</li>
-      <ul>
-        <li>This setup uses a <em>Data Collection Rule (DCR)</em> to automatically forward security event logs from the VM into LAW, enabling Sentinel to ingest and query the data in real time.</li>
-      </ul>
+      <li>
+          Linked the VM to the LAW using <em>Windows Security Events via Azure Monitoring Agent (AMA)</em>                   connector.
+      </li>
+      <li>
+        This connector creates a <em>Data Collection Rule (DCR)</em>, to automatically forward security event logs         from the VM into LAW, enabling Sentinel to ingest and query the data in real time.
+      </li>
     </ul>
   </li>
 </ul>
 
+<p align="center">
+  <img src="LogCollectionConfig.png" alt="Log Collection Process in Azure" length="200" width="600" height="400">
+</p>
 
 <br>
 
 ---
 
-3. 
+<h3>3. Querying logs in LAW</h3>
+
+<ul>
+  <li>Queried failed login attempts <code>Event ID == 4625</code> using Kusto Query Language (KQL)</li>
+    <pre><code>
+let GeoIPDB_FULL = _GetWatchlist("geoip");
+let WindowsEvents = SecurityEvent;
+WindowsEvents
+    | where EventID == 4625
+    | order by TimeGenerated desc
+    | evaluate ipv4_lookup(GeoIPDB_FULL, IpAddress, network)
+WindowsEvents
+    | project TimeGenerated, Computer, AttackerIp = IpAddress, cityname, countryname, longitude, latitude
+</code></pre>
+  <li>Enriched logs using a custom IP geolocation watchlist
+     <br>
+      <blockquote><sub><em>The geolocation dataset (<code>geoip-summarized.csv</code>) was provided as part of the lab exercise. In production environments, IP enrichment data is typically pulled dynamically from live threat intelligence sources or maintained automatically by a security team.</em></sub></blockquote>
+</li>
+  <li>Mapped attacker IPs to geographic locations for visualization</li>
+</ul>
+
+<p align="center">
+  <img src="Failed-Event-Logs-KQL.png" alt="Log Collection Process in Azure" length="300" width="800" height="400">
+</p>
 
 
 
