@@ -21,6 +21,8 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
   <li>Create an attack map to track real-time hacker activity across the globe</li>
 </ul>
 
+<br>
+
 # Key Steps
 
 <h3>1. Set up VM</h3>
@@ -31,8 +33,6 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 <br>
   <blockquote><em><sub>This configuration is intended for lab use only. Exposing a VM with all inbound traffic and no firewall is highly insecure and should never be done in a production environment.</sub></em></blockquote>
 </ul>
-
-<br>
 
 ---
 
@@ -64,14 +64,17 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
   <img src="LogCollectionConfig.png" alt="Log Collection Process in Azure" length="200" width="600" height="400">
 </p>
 
-<br>
-
 ---
 
 <h3>3. Querying logs in LAW</h3>
 
 <ul>
+    <li>Uploaded the <code>geoip-summarized.csv</code> file as a Sentinel watchlist to provide geolocation data for public IP address blocks. This enrichment allowed mapping attacker IPs to physical locations (city, country, lat/long).
+     <br>
+      <blockquote><sub><em>The geolocation dataset (<code>geoip-summarized.csv</code>) was provided as part of the lab exercise. In production environments, IP enrichment data is typically pulled dynamically from live threat intelligence sources or maintained automatically by a security team.</em></sub></blockquote>
+</li>
   <li>Queried failed login attempts <code>Event ID == 4625</code> using Kusto Query Language (KQL)</li>
+    <br>
     <pre><code>
 let GeoIPDB_FULL = _GetWatchlist("geoip");
 let WindowsEvents = SecurityEvent;
@@ -82,16 +85,65 @@ WindowsEvents
 WindowsEvents
     | project TimeGenerated, Computer, AttackerIp = IpAddress, cityname, countryname, longitude, latitude
 </code></pre>
-  <li>Enriched logs using a custom IP geolocation watchlist
-     <br>
-      <blockquote><sub><em>The geolocation dataset (<code>geoip-summarized.csv</code>) was provided as part of the lab exercise. In production environments, IP enrichment data is typically pulled dynamically from live threat intelligence sources or maintained automatically by a security team.</em></sub></blockquote>
-</li>
-  <li>Mapped attacker IPs to geographic locations for visualization</li>
 </ul>
 
-<p align="center">
-  <img src="Failed-Event-Logs-KQL.png" alt="Log Collection Process in Azure" length="300" width="800" height="400">
+<br>
+
+<p align="left">
+  <img src="Failed-Attempt-Logs-KQL.png" alt="Log Collection Process in Azure" length="400" width="700" height="500">
 </p>
+<p align="center"><blockquote>
+    <sub>Query output showing failed RDP login attempts with enriched location data from the IP geolocation watchlist.</sub>
+</blockquote></p>
+<blockquote>
+<sub>The geolocation watchlist allowed the KQL query to perform an IP range lookup via the <code>ipv4_lookup()</code> function, correlating attacker IPs with real-world locations.</sub>
+</blockquote>
+
+---
+<h2>4. Attack Map Creation </h2>
+
+<ul>
+    <li>Imported <code>map.json</code> file into a new Sentinel Workbook using the Advanced Editor to generate a global heatmap.</li>
+</ul>
+    <blockquote>
+    <sub>The <code>map.json</code> file includes a built-in KQL query that runs when you add it to a Sentinel Workbook. The query pulls failed login events, enriches them with geolocation data from the watchlist, and sends the results to the map. It also controls how the map looks with attributes like bubble size, colors, and labels showing city and country names.</sub>
+    </blockquote>
+
+<br>
+
+<ul>
+    <li>The map visualizes attacker IPs by correlating enriched geolocation data (latitude/longitude) with failed login counts, highlighting regions with high attack activity.</li>
+</ul>
+    
+---
+
+<h3>Attack Map Activty Over Time</h3>
+
+To monitor how external attacks build up over time, I kept the honeypot VM exposed to the internet for several hours.
+
+The Sentinel Workbook attack map continuously updated as failed RDP login attempts were recorded and matched with geographic data from the watchlist.
+
+<h4 align="center"> Initial Results (0–1 hour)</h4>
+<p align="center">
+  <img src="Initial-Attack-Map.png" alt="Initial Attack Map in Sentinel Workbook" width="700">
+</p>
+    <blockquote>
+        <sub>Shortly after deploying the honeypot, a few failed RDP login attempts were detected, mostly from a limited number of regions. This confirms that exposed systems are quickly found by automated scanners.</sub>
+    </blockquote>
+
+<h4 align="center"> Updated Results (10 hours)</h4>
+<p align="center">
+  <img src="Attack-Map-Updated.png" alt="Updated Attack Map in Sentinel Workbook" width="700">
+</p>
+    <blockquote>
+        <sub>After leaving the honeypot exposed for 10 hours, the number and spread of failed RDP login attempts increased significantly — showing attacks from multiple countries and networks.</sub>
+    </blockquote>
+
+<br>
+
+# Lessons Learned
+
+
 
 
 
