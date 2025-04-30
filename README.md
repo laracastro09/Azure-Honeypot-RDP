@@ -23,7 +23,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 <br>
 
-# Key Steps
+# Process
 
 <h3>1. Set up VM</h3>
 <ul>
@@ -51,10 +51,10 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
     <strong>Installed and configured Windows Security Events</strong> in Sentinel:
     <ul>
       <li>
-          Linked the VM to the LAW using <em>Windows Security Events via Azure Monitoring Agent (AMA)</em>                   connector.
+          Linked the VM to the LAW using <em>Windows Security Events via Azure Monitoring Agent (AMA)</em> connector.
       </li>
       <li>
-        This connector creates a <em>Data Collection Rule (DCR)</em>, to automatically forward security event logs         from the VM into LAW, enabling Sentinel to ingest and query the data in real time.
+        This connector creates a <em>Data Collection Rule (DCR)</em>, to automatically forward security event logs from the VM into LAW, enabling Sentinel to ingest and query the data in real time.
       </li>
     </ul>
   </li>
@@ -71,8 +71,9 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 <ul>
     <li>Uploaded the <code>geoip-summarized.csv</code> file as a Sentinel watchlist to provide geolocation data for public IP address blocks. This enrichment allowed mapping attacker IPs to physical locations (city, country, lat/long).
      <br>
-      <blockquote><sub><em>The geolocation dataset (<code>geoip-summarized.csv</code>) was provided as part of the lab exercise. In production environments, IP enrichment data is typically pulled dynamically from live threat intelligence sources or maintained automatically by a security team.</em></sub></blockquote>
+      <blockquote><sub><em><code>geoip-summarized.csv</code> is a geolocation dataset containing IP ranges and location data to enrich attacker IPs with geographic context. In production environments, this process is typically automated through live threat intelligence feeds or maintained internally by a security team.</em></sub></blockquote>
 </li>
+    <br>
   <li>Queried failed login attempts <code>Event ID == 4625</code> using Kusto Query Language (KQL)</li>
     <br>
     <pre><code>
@@ -104,11 +105,10 @@ WindowsEvents
 
 <ul>
     <li>Imported <code>map.json</code> file into a new Sentinel Workbook using the Advanced Editor to generate a global heatmap.</li>
-</ul>
     <blockquote>
-    <sub>The <code>map.json</code> file includes a built-in KQL query that runs when you add it to a Sentinel Workbook. The query pulls failed login events, enriches them with geolocation data from the watchlist, and sends the results to the map. It also controls how the map looks with attributes like bubble size, colors, and labels showing city and country names.</sub>
+    <sub><em>The <code>map.json</code> file includes a built-in KQL query that runs when you add it to a Sentinel Workbook. The query pulls failed login events, enriches them with geolocation data from the watchlist, and sends the results to the map. It also controls how the map looks with attributes like bubble size, colors, and labels showing city and country names.</sub></em>
     </blockquote>
-
+</ul>
 <br>
 
 <ul>
@@ -117,7 +117,7 @@ WindowsEvents
     
 ---
 
-<h3>Attack Map Activty Over Time</h3>
+<h3>Attack Map Activity Over Time</h3>
 
 To monitor how external attacks build up over time, I kept the honeypot VM exposed to the internet for several hours.
 
@@ -136,15 +136,38 @@ The Sentinel Workbook attack map continuously updated as failed RDP login attemp
   <img src="Attack-Map-Updated.png" alt="Updated Attack Map in Sentinel Workbook" width="700">
 </p>
     <blockquote>
-        <sub>After leaving the honeypot exposed for 10 hours, the number and spread of failed RDP login attempts increased significantly — showing attacks from multiple countries and networks.</sub>
+        <sub>After leaving the honeypot exposed for about 10 hours, the number and spread of failed RDP login attempts increased significantly — showing attacks from multiple countries and networks.</sub>
     </blockquote>
 
 <br>
 
-# Lessons Learned
+# Takeaways
 
+<ul>
+  <li><strong>Exposed services are high-risk assets</strong><br>
+    Public-facing RDP is a well-known attack vector. Even during a short exposure window, the VM was targeted by automated scanning tools. This highlights the importance of hardening access using NSG rules, account lockout policies, host-based firewalls, and secure access solutions like Azure Bastion.
+  </li>
+  <br>
+  <li><strong>Log telemetry is foundational to detection</strong><br>
+    Without forwarding security logs to a centralized workspace, detection and investigation would not be possible. Without this step, a security analyst/team has no line of sight into endpoint activity or brute-force behavior.
+  </li>
+  <br>
+  <li><strong>Data context accelerates triage</strong><br>
+    Matching attacker IPs with geographic location made it easier to understand threat patterns and prioritize analysis. In a live SOC, this kind of enrichment helps filter noise, spot patterns, and respond with appropriate urgency.
+  </li>
+  <br>
+  <li><strong>Visual dashboards support situational awareness</strong><br>
+    The attack map served as a real-time view into where attacks were originating. In enterprise settings, similar dashboards help analysts spot anomalies and detect coordinated attacks faster.
+  </li>
+  <br>
+  <li><strong>KQL enables efficient investigation</strong><br>
+    Writing KQL queries to identify failed RDP logins and correlate them with geolocation data mirrors how detection and response teams perform root-cause analysis and monitor threat activity in Microsoft-based environments.
+  </li>
+</ul>
 
+<br>
 
+<p>This project provided a realistic view of how exposed cloud resources are targeted and monitored in a SOC environment. It emphasized the importance of log visibility, contextual analysis, and actionable insights using SIEM tools like Microsoft Sentinel.</p>
 
 
 
