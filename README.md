@@ -30,8 +30,8 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 <li>Created an image of Windows 10 Pro</li>
 <li>Network Security Group in Azure modified to allow all inbound traffic</li>
 <li>Connected remotely to VM to disable the firewall state for Domain, Private, and Public Profiles</li>
-<br>
   <blockquote><em><sub>This configuration is intended for lab use only. Exposing a VM with all inbound traffic and no firewall is highly insecure and should never be done in a production environment.</sub></em></blockquote>
+<li>Pinged VM from local computer to make sure it's reachable over the internet</li>
 </ul>
 
 ---
@@ -40,25 +40,40 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 <p align="left">
   <img src="Failed-Event-Logs-VM.png" alt="Failed Event Logs in VM" length="200" width="700" height="400">
-    <br><blockquote><sub>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel to identify the origin of attempted attacks against the honeypot VM.</sub></em></blockquote>
+    <br><blockquote><sub>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel, to identify the origin of attempted attacks against the honeypot VM.</sub></em></blockquote>
 </p>
 <br>
 
 <ul>
   <li><strong>Created a Log Analytics Workspace (LAW)</strong> to serve as a central log repository for forwarding VM security events.</li>
-  <li><strong>Deployed Microsoft Sentinel</strong> and connected it to the LAW to enable centralized security event monitoring.</li>
+  <li><strong>Deployed a Sentinel instance and connected it to Log Analytics Workspace (LAW)</strong> to enable centralized access to security logs through the SIEM platform.</li>
   <li>
-    <strong>Installed and configured Windows Security Events</strong> in Sentinel:
+    <strong>Installed and configured Windows Security Events</strong>:
     <ul>
       <li>
-          Linked the VM to the LAW using <em>Windows Security Events via Azure Monitoring Agent (AMA)</em> connector.
+          Connected the VM to workspace using the <b>Azure Monitoring Agent (AMA)</b> connector.
       </li>
+<ul>
       <li>
-        This connector creates a <em>Data Collection Rule (DCR)</em>, to automatically forward security event logs from the VM into LAW, enabling Sentinel to ingest and query the data in real time.
+        Created a <b>Data Collection Rule (DCR)</b>, to automatically forward security event logs from the VM into workspace, enabling Sentinel to ingest and query the data in real time. 
       </li>
+</ul>
     </ul>
   </li>
+<br>
+<details>
+<summary><sub><em>What is Azure Monitor Agent (AMA)?</em></sub></summary><br>
+
+<sub>It collects logs and performance data from VMs running in Azure, on-premises, or in other cloud environments. It sends data to **Azure Monitor**, where services like **Microsoft Sentinel** and **Microsoft Defender for Cloud** can use it for analysis.</sub>
+
+<sub>AMA collects all data by using **Data Collection Rules (DCRs)**, which define:</sub>
+<br>
+    <sub>- What data is collected</sub><br>
+    <sub>- How the data is filtered, transformed, or aggregated</sub><br>
+    <sub>- Where the data is sent (e.g., Log Analytics Workspace)</sub>
+</details>
 </ul>
+
 
 <p align="center">
   <img src="LogCollectionConfig.png" alt="Log Collection Process in Azure" length="200" width="600" height="400">
