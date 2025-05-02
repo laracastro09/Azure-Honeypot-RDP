@@ -36,7 +36,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 ---
 
 <h3>2. Log Collection Configuration</h3>
-
+<br>
 <p align="left">
   <img src="https://github.com/user-attachments/assets/a6200d04-4f73-400d-99a0-710434ddd01a" alt="Failed Event Logs in VM" width="700">
     <br><blockquote><sub>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel, to identify the origin of attempted attacks against the honeypot VM.</sub></em></blockquote>
@@ -74,7 +74,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 
 <p align="center">
-  <img src="LogCollectionConfig.png" alt="Log Collection Process in Azure" length="200" width="600" height="400">
+  <img src="https://github.com/user-attachments/assets/307b32d1-8abc-4426-a67a-8f04c93b048e" alt="Log Collection Process in Azure" width="600">
 </p>
 
 ---
