@@ -18,6 +18,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
   <li>Forward security logs from the VM and integrate them with Sentinel for real-time monitoring</li>
   <li>Query failed login attempts using KQL and enrich the data with geolocation information</li>
   <li>Create an attack map to track real-time hacker activity across the globe</li>
+  <li>Analyze attacker behavior by identifying patterns</li>
 </ul>
 
 <br>
@@ -33,7 +34,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 <li>Pinged VM from local computer to make sure it's reachable over the internet</li>
 </ul>
 
----
+<br>
 
 <h2>2. Log Collection Configuration</h2>
 <br>
@@ -77,7 +78,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
   <img src="https://github.com/user-attachments/assets/307b32d1-8abc-4426-a67a-8f04c93b048e" alt="Log Collection Process in Azure" width="600">
 </p>
 
----
+<br>
 
 <h2>3. Querying logs in LAW</h2>
 <h4><mark>Before Data Enrichment:</mark></h4>
@@ -126,7 +127,8 @@ WindowsEvents
 <sub>The geolocation watchlist allowed the KQL query to perform an IP range lookup via the <code>ipv4_lookup()</code> function, correlating attacker IPs with real-world locations.</sub>
 </blockquote>
 
----
+<br>
+
 <h2>4. Attack Map Creation </h2>
 
 <ul>
@@ -149,9 +151,9 @@ To monitor how external attacks build up over time, I kept the honeypot VM expos
 
 The Sentinel Workbook attack map continuously updated as failed RDP login attempts were recorded and matched with geographic data from the watchlist.
 
-<h4 align="center"> Initial Results (0–1 hour)</h4>
+<h4 align="center"> Initial Results (0–4 hours)</h4>
 <p align="center">
-  <img src="Initial-Attack-Map.png" alt="Initial Attack Map in Sentinel Workbook" width="700">
+  <img src="https://github.com/user-attachments/assets/b470cf43-1eb3-4dae-9b24-e1e9212a24b8" alt="Initial Attack Map in Sentinel Workbook" width="800">
 </p>
     <blockquote>
         <sub>Shortly after deploying the honeypot, a few failed RDP login attempts were detected, mostly from a limited number of regions. This confirms that exposed systems are quickly found by automated scanners.</sub>
@@ -159,43 +161,110 @@ The Sentinel Workbook attack map continuously updated as failed RDP login attemp
 
 <h4 align="center"> Updated Results (10 hours)</h4>
 <p align="center">
-  <img src="Attack-Map-Updated.png" alt="Updated Attack Map in Sentinel Workbook" width="700">
+  <img src="https://github.com/user-attachments/assets/7b9953c9-75de-4161-86e0-e02de9674700" alt="Updated Attack Map in Sentinel Workbook" width="800">
 </p>
     <blockquote>
         <sub>After leaving the honeypot exposed for about 10 hours, the number and spread of failed RDP login attempts increased significantly — showing attacks from multiple countries and networks.</sub>
     </blockquote>
 
-<br>
+---
 
-# Takeaways
+<h3>Observed Attacker Behaviors</h3>
+<p>While monitoring the exposed virtual machine, I began to notice several recurring behaviors that are commonly associated with brute-force attacks:</p>
 
 <ul>
-  <li><strong>Exposed services are high-risk assets</strong><br>
-    Public-facing RDP is a well-known attack vector. Even during a short exposure window, the VM was targeted by automated scanning tools. This highlights the importance of hardening access using NSG rules, account lockout policies, host-based firewalls, and secure access solutions like Azure Bastion.
+  <li>
+    <strong>Repeated login failures from the same IP address</strong><br>
+    Many failed attempts originated from a single IP, suggesting the use of automated scripts cycling through passwords.
   </li>
-  <br>
-  <li><strong>Log telemetry is foundational to detection</strong><br>
-    Without forwarding security logs to a centralized workspace, detection and investigation would not be possible. Without this step, a security analyst/team has no line of sight into endpoint activity or brute-force behavior.
+    <br>
+  <li>
+    <strong>Attempts using common usernames</strong><br>
+    Usernames like <code>admin</code>, <code>administrator</code>, <code>user</code>, and <code>employee</code> appeared frequently, indicating attackers were targeting predictable credentials.
   </li>
-  <br>
-  <li><strong>Data context accelerates triage</strong><br>
-    Matching attacker IPs with geographic location made it easier to understand threat patterns and prioritize analysis. In a live SOC, this kind of enrichment helps filter noise, spot patterns, and respond with appropriate urgency.
+    <br>
+  <li>
+    <strong>Clusters of IPs from specific regions</strong><br>
+    A large number of attempts came from the same geographic areas—primarily Eastern Europe and Asia—consistent with botnet or proxy-based attacks.
   </li>
-  <br>
-  <li><strong>Visual dashboards support situational awareness</strong><br>
-    The attack map served as a real-time view into where attacks were originating. In enterprise settings, similar dashboards help analysts spot anomalies and detect coordinated attacks faster.
+    <br>
+  <li>
+    <strong>Unusual timing of activity</strong><br>
+    Most login attempts occurred late at night or during weekends, which is typical for automated scans targeting unattended systems.
   </li>
-  <br>
-  <li><strong>KQL enables efficient investigation</strong><br>
-    Writing KQL queries to identify failed RDP logins and correlate them with geolocation data mirrors how detection and response teams perform root-cause analysis and monitor threat activity in Microsoft-based environments.
+    <br>
+  <li>
+    <strong>High frequency of login attempts in short timeframes</strong><br>
+    The rapid succession of failed logins suggested the use of scripts or tools rather than manual brute-force efforts.
   </li>
 </ul>
 
 <br>
 
-<p>This project provided a realistic view of how exposed cloud resources are targeted and monitored in a SOC environment. It emphasized the importance of log visibility, contextual analysis, and actionable insights using SIEM tools like Microsoft Sentinel.</p>
+# Framework Alignment
+<h3>NIST Cybersecurity Framework 2.0</h3>
+<table>
+  <tr>
+    <th>Function</th>
+    <th>Category & Category Identifier</th>
+    <th>Lab Implementation</th>
+  </tr>
+  <tr>
+    <td>Identify</td>
+    <td>Risk Assessment<br> (ID.RA-03)</td>
+    <td>Deployed a honeypot VM to observe real-world brute-force attacks and record external threats using actual failed RDP login attempts
+</td>
+  </tr>
+  <tr>
+    <td>Protect</td>
+    <td>Platform Security<br> (PR.PS-04)</td>
+    <td>Configured VM and Monitoring Agent to generate and forward Windows Security Event logs to Log Analytics Workspace for continuous monitoring
+</td>
+  </tr>
+  <tr>
+    <td>Detect</td>
+    <td>Continuous Monitoring<br> (DE.CM-01)</td>
+    <td>Used Microsoft Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
+</td>
+  </tr>
+  <tr>
+    <td>Detect</td>
+    <td>Adverse Event Analysis<br> (DE.AE-02)</td>
+    <td>Used Sentinel and KQL to continuously monitor and analyze failed RDP login attempts, identifying suspicious patterns and attacker behavior
+</td>
+  </tr>
+  <tr>
+    <td>Detect</td>
+    <td>Adverse Event Analysis<br> (DE.AE-03)</td>
+    <td>Correlated data from two sources: Windows Security Event logs and a geolocation IP watchlist to enrich logs with attacker location data
+</td>
+  </tr>
+</table>
+<br>
 
-
-
+# Takeaways
+<ul>
+  <li>
+    <strong>Exposing services comes with real risk</strong><br>
+    Even within hours, the public-facing VM attracted automated brute-force attempts, reinforcing why remote access should always be restricted using NSG rules, account lockout policies, host firewalls, etc.
+  </li>
+    <br>
+  <li>
+    <strong>Centralized log collection is critical</strong><br>
+    Forwarding logs to Log Analytics Workspace was essential for visibility. Without it, there's no way to detect or investigate suspicious activity across cloud assets.
+  </li>
+    <br>
+  <li>
+    <strong>Context improves detection</strong><br>
+    Adding geolocation data to attacker IPs made it easier to identify patterns and prioritize potential threats—an approach used in real-world SOC environments to speed up triage.
+  </li>
+    <br>
+  <li>
+    <strong>Visualizations enhance situational awareness</strong><br>
+    The attack map helped translate raw logs into a clear visual of global attack sources, similar to how dashboards help SOC teams quickly spot anomalies.
+  </li>
+</ul>
+<br>
+<p>This lab provided hands-on exposure to how threat actors exploit publicly exposed services, highlighting the importance of minimizing attack surfaces and monitoring for brute-force activity. It also gave me insight on how analysts detect, monitor, and respond using SIEM tools like Microsoft Sentinel.</p>
 
 
