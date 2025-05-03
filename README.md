@@ -24,7 +24,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 # Process
 
-<h3>1. Set up VM</h3>
+<h2>1. Set up VM</h2>
 <ul>
 <li>Created an image of Windows 10 Pro</li>
 <li>Network Security Group in Azure modified to allow all inbound traffic</li>
@@ -35,10 +35,10 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 ---
 
-<h3>2. Log Collection Configuration</h3>
+<h2>2. Log Collection Configuration</h2>
 <br>
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/a6200d04-4f73-400d-99a0-710434ddd01a" alt="Failed Event Logs in VM" width="700">
+  <img src="https://github.com/user-attachments/assets/a6200d04-4f73-400d-99a0-710434ddd01a" alt="Failed Event Logs in VM" width="600">
     <br><blockquote><sub>RDP failed login attempts are captured in the Windows Event Viewer. These events are forwarded to Azure Log Analytics Workspace, where they can be queried and analyzed in Microsoft Sentinel, to identify the origin of attempted attacks against the honeypot VM.</sub></em></blockquote>
 </p>
 <br>
@@ -79,11 +79,13 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 ---
 
-<h3>3. Querying logs in LAW</h3>
-<h4>Before Data Enrichment:</h4>
+<h2>3. Querying logs in LAW</h2>
+<h4><mark>Before Data Enrichment:</mark></h4>
 <p>
   <img src="https://github.com/user-attachments/assets/dd53b5a1-e919-4440-bc0d-8acd4bb05d34" alt="Before Data Enrichment" width="600">
 </p>
+
+---
 
 <h4>To understand where attacks are coming from:</h4>
 <ul>
@@ -111,9 +113,11 @@ WindowsEvents
 </code></pre>
 </ul>
 
-<h4>After Data Enrichment:</h4>
+---
+
+<h4><mark>After Data Enrichment:</mark></h4>
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/62a0f7cc-c152-49db-a863-c7e729f7a074" alt="After Data Enrichment" width="700">
+  <img src="https://github.com/user-attachments/assets/62a0f7cc-c152-49db-a863-c7e729f7a074" alt="After Data Enrichment" width="600">
 </p>
 <p align="center"><blockquote>
     <sub>Query output showing failed RDP login attempts with enriched location data from the IP geolocation watchlist.</sub>
