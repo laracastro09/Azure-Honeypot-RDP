@@ -1,7 +1,9 @@
 # Azure Honeypot RDP Lab
-This project simulates a real-world threat scenario by deploying a cloud-based honeypot in Microsoft Azure. The purpose of this lab was to gain hands-on experience in threat detection and telemetry analysis against exposed cloud resources using enterprise SIEM tools.
+This project emulated a real-world cybersecurity threat scenario by deploying a honeypot virtual machine (VM) within the Microsoft Azure cloud environment. The objective was to develop hands-on experience in detecting, analyzing, and visualizing threat activity targeting publicly accessible cloud assets using enterprise-grade SIEM capabilities.
 
-I configured a deliberately vulnerable virtual machine (VM) exposed to the public internet to simulate an unprotected endpoint. Security event logs were collected using a monitoring agent, centralized in a log analytics workspace, and integrated Microsoft Sentinel for threat detection and monitoring. Using Kusto Query Language (KQL) and geolocation enrichment, I analyzed failed Remote Desktop Protocol (RDP) login attempts and visualized attacker origins across the globe.
+A deliberately unprotected Windows VM was exposed to the internet to simulate a vulnerable endpoint. Security telemetry was collected via the Azure Monitor Agent, forwarded to a centralized Log Analytics Workspace, and ingested into Microsoft Sentinel for monitoring. Kusto Query Language (KQL) and a custom IP geolocation dataset were used to analyze failed Remote Desktop Protocol (RDP) login attempts and map attacker origin points.
+
+This lab aligns with core NIST Cybersecurity Framework 2.0 controls (Identify, Protect, and Detect) by demonstrating risk assessment, continuous telemetry collection, and enriched event analysis to improve threat visibility.
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/9907cae3-b29e-4503-b867-dd2a2c1a0606" alt="Azure Honeypot Lab Architecture" width="850">
@@ -137,12 +139,7 @@ WindowsEvents
     <sub><em>The <code>map.json</code> file includes a KQL query that runs when you add it to a Sentinel Workbook. The query pulls failed login events, enriches them with geolocation data from the watchlist, and sends the results to the map. It also defines how the map looks with attributes like bubble size, colors, and labels showing city and country names.</sub></em>
     </blockquote>
 </ul>
-<br>
 
-<ul>
-    <li>The map visualizes attacker IPs by correlating enriched geolocation data (latitude/longitude) with failed login counts, highlighting regions with high attack activity.</li>
-</ul>
-    
 ---
 
 <h3>Attack Map Activity Over Time</h3>
@@ -164,7 +161,7 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
   <img src="https://github.com/user-attachments/assets/57d340af-8821-4230-9f59-2b321f0ec245" alt="Updated Attack Map in Sentinel Workbook" width="800">
 </p>
     <blockquote>
-        <sub>After leaving the VM exposed for a full 24 hours, the attack surface expanded significantly. The map captured failed login attempts from over a dozen additional global regions, with persistent attempts from Europe, South America, and parts of Asia. The increased geographic distribution and volume of events suggest widespread use of automated tools, such as botnets or distributed brute-force frameworks, actively scanning for unsecured RDP endpoints.</sub>
+        <sub>After 24 hours of exposure, the attack map revealed a significant increase in failed login attempts, with sustained activity from threat sources across Europe, South America, and Asia</sub>
     </blockquote>
 
 ---
@@ -217,7 +214,7 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
   </tr>
   <tr>
     <td>Detect</td>
-    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring (DE.CM-01)</a></td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring (DE.CM-01)<br></a></td>
     <td>Used Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
 </td>
   </tr>
@@ -239,25 +236,25 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
 <ul>
   <li>
     <strong>Exposing services comes with real risk</strong><br>
-    Even within hours, the public-facing VM attracted automated brute-force attempts, reinforcing why remote access should always be restricted using NSG rules, account lockout policies, host firewalls, etc.
+    Within hours, the exposed VM began receiving brute-force login attempts. This highlights the importance of securing cloud resources using proper NSG rules, host firewalls, and access controls.
   </li>
     <br>
   <li>
     <strong>Centralized log collection is critical</strong><br>
-    Forwarding logs to Log Analytics Workspace was essential for visibility. Without it, there's no way to detect or investigate suspicious activity across cloud assets.
+  Forwarding logs to the workspace provided the visibility needed to detect and investigate suspicious activity across cloud resources.
   </li>
     <br>
   <li>
     <strong>Context improves detection</strong><br>
-    Adding geolocation data to attacker IPs made it easier to identify patterns and prioritize potential threats—an approach used in real-world SOC environments to speed up triage.
+  Adding geolocation to attacker IPs helped reveal patterns and prioritize threats, a common practice in SOC environments to support faster triage and response.
   </li>
     <br>
   <li>
     <strong>Visualizations enhance situational awareness</strong><br>
-    The attack map helped translate raw logs into a clear visual of global attack sources, similar to how dashboards help SOC teams quickly spot anomalies.
+    The attack map helped translate raw logs into a clear visual of global attack sources, similar to how SOC dashboards help analysts quickly identify anomalies.
   </li>
 </ul>
 <br>
-<p>This lab provided hands-on exposure to how threat actors exploit publicly exposed services, highlighting the importance of minimizing attack surfaces and monitoring for brute-force activity. It also gave insight on how analysts detect and monitor threats using SIEM tools like Microsoft Sentinel.</p>
+<p>This lab provided a practical foundation for understanding adversary behavior in cloud environments and reinforced the value of leveraging SIEM platforms such as Microsoft Sentinel for effective threat detection, monitoring, and incident response.</p>
 
 
