@@ -184,7 +184,7 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
     <br>
   <li>
     <strong>Clusters of IPs from specific regions</strong><br>
-    A large number of attempts came from the same geographic areas—primarily Eastern Europe and Asia—consistent with botnet or proxy-based attacks.
+    Significant login attempts originated from regions like Argentina, Poland, and Western Europe, indicating potential botnets or automated attack activity.
   </li>
     <br>
   <li>
