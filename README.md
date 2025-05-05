@@ -214,7 +214,7 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
   </tr>
   <tr>
     <td>Detect</td>
-    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring (DE.CM-01)<br></a></td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring<br>(DE.CM-01)</a></td>
     <td>Used Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
 </td>
   </tr>
