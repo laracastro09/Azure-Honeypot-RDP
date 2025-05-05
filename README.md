@@ -1,7 +1,7 @@
 # Azure Honeypot RDP Lab
-This project simulates a real-world cybersecurity environment by deploying a cloud-based honeypot in Microsoft Azure. The purpose of this lab was to gain hands-on experience in detecting, analyzing, and visualizing attack patterns against exposed cloud resources using enterprise-grade SIEM tools.
+This project simulates a real-world threat scenario by deploying a cloud-based honeypot in Microsoft Azure. The purpose of this lab was to gain hands-on experience in threat detection and telemetry analysis against exposed cloud resources using enterprise SIEM tools.
 
-I configured an intentionally vulnerable virtual machine (VM) exposed to the public internet, centralized security event logging with Azure Log Analytics, and integrated Microsoft Sentinel for threat detection and monitoring. Using Kusto Query Language (KQL) and geolocation enrichment, I analyzed failed Remote Desktop Protocol (RDP) login attempts and visualized attacker origins across the globe.
+I configured a deliberately vulnerable virtual machine (VM) exposed to the public internet to simulate an unprotected endpoint. Security event logs were collected using a monitoring agent, centralized in a log analytics workspace, and integrated Microsoft Sentinel for threat detection and monitoring. Using Kusto Query Language (KQL) and geolocation enrichment, I analyzed failed Remote Desktop Protocol (RDP) login attempts and visualized attacker origins across the globe.
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/9907cae3-b29e-4503-b867-dd2a2c1a0606" alt="Azure Honeypot Lab Architecture" width="850">
@@ -27,11 +27,11 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 <h2>1. Set up VM</h2>
 <ul>
-<li>Created an image of Windows 10 Pro</li>
-<li>Network Security Group in Azure modified to allow all inbound traffic</li>
-<li>Connected remotely to VM to disable the firewall state for Domain, Private, and Public Profiles</li>
+<li>Created an image of Windows 10 Pro.</li>
+<li>Network Security Group in Azure modified to allow all inbound traffic.</li>
+<li>Connected remotely to VM to disable the firewall state for Domain, Private, and Public Profiles.</li>
   <blockquote><em><sub>This configuration is intended for lab use only. Exposing a VM with all inbound traffic and no firewall is highly insecure and should never be done in a production environment.</sub></em></blockquote>
-<li>Pinged VM from local computer to make sure it's reachable over the internet</li>
+<li>Validated external connectivity by initiating an ICMP echo request from local machine to confirm the VM was reachable over the public IP.</li>
 </ul>
 
 <br>
@@ -46,7 +46,7 @@ I configured an intentionally vulnerable virtual machine (VM) exposed to the pub
 
 <ul>
   <li>Created a <b>Log Analytics Workspace (LAW)</b> to serve as a central log repository for forwarding VM security events.</li>
-  <li>Deployed a <b>Sentinel instance</b> and connected it to LAW, to enable centralized access to security logs through the SIEM platform.</li>
+  <li>Deployed a <b>Sentinel instance</b> and connected it to LAW, to enable access to security logs through Sentinel.</li>
   <li>Installed and configured <b>Windows Security Events</b>:
     <ul>
       <li>
@@ -147,30 +147,29 @@ WindowsEvents
 
 <h3>Attack Map Activity Over Time</h3>
 
-To monitor how external attacks build up over time, I kept the honeypot VM exposed to the internet for several hours.
+To examine the progression of external threat activity, the honeypot VM was left publicly exposed, allowing for continuous monitoring and collection of failed login attempts and malicious IP activity.
 
-The Sentinel Workbook attack map continuously updated as failed RDP login attempts were recorded and matched with geographic data from the watchlist.
+The Sentinel Workbook attack map dynamically updated in real time, correlating incoming threats with geolocation data from the IP watchlist.
 
-<h4 align="center"> Initial Results (0–4 hours)</h4>
+<h4 align="center"> Initial Results (0–1 hour)</h4>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b470cf43-1eb3-4dae-9b24-e1e9212a24b8" alt="Initial Attack Map in Sentinel Workbook" width="800">
+  <img src="https://github.com/user-attachments/assets/fe82220c-de5a-4f33-8e41-73ee8049511a" alt="Initial Attack Map in Sentinel Workbook" width="800">
 </p>
     <blockquote>
-        <sub>Shortly after deploying the honeypot, a few failed RDP login attempts were detected, mostly from a limited number of regions. This confirms that exposed systems are quickly found by automated scanners.</sub>
+        <sub>Shortly after deploying the honeypot, the attack map began registering failed login attempts from a limited number of global IPs. Notably, the highest activity originated from Argentina and Poland. This demonstrates how quickly exposed cloud assets are discovered and targeted by automated scripts and scanning bots.</sub>
     </blockquote>
 
-<h4 align="center"> Updated Results (10 hours)</h4>
+<h4 align="center"> Updated Results (24 hours)</h4>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7b9953c9-75de-4161-86e0-e02de9674700" alt="Updated Attack Map in Sentinel Workbook" width="800">
+  <img src="https://github.com/user-attachments/assets/57d340af-8821-4230-9f59-2b321f0ec245" alt="Updated Attack Map in Sentinel Workbook" width="800">
 </p>
     <blockquote>
-        <sub>After leaving the honeypot exposed for about 10 hours, the number and spread of failed RDP login attempts increased significantly — showing attacks from multiple countries and networks.</sub>
+        <sub>After leaving the VM exposed for a full 24 hours, the attack surface expanded significantly. The map captured failed login attempts from over a dozen additional global regions, with persistent attempts from Europe, South America, and parts of Asia. The increased geographic distribution and volume of events suggest widespread use of automated tools, such as botnets or distributed brute-force frameworks, actively scanning for unsecured RDP endpoints.</sub>
     </blockquote>
 
 ---
 
 <h3>Observed Attacker Behaviors</h3>
-<p>While monitoring the exposed virtual machine, I began to notice several recurring behaviors that are commonly associated with brute-force attacks:</p>
 
 <ul>
   <li>
@@ -186,11 +185,6 @@ The Sentinel Workbook attack map continuously updated as failed RDP login attemp
   <li>
     <strong>Clusters of IPs from specific regions</strong><br>
     A large number of attempts came from the same geographic areas—primarily Eastern Europe and Asia—consistent with botnet or proxy-based attacks.
-  </li>
-    <br>
-  <li>
-    <strong>Unusual timing of activity</strong><br>
-    Most login attempts occurred late at night or during weekends, which is typical for automated scans targeting unattended systems.
   </li>
     <br>
   <li>
@@ -211,33 +205,32 @@ The Sentinel Workbook attack map continuously updated as failed RDP login attemp
   </tr>
   <tr>
     <td>Identify</td>
-    <td>Risk Assessment<br> (ID.RA-03)</td>
-    <td>Deployed a honeypot VM to observe real-world brute-force attacks and record external threats using actual failed RDP login attempts
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/id/id-ra/id-ra-03/">Risk Assessment<br> (ID.RA-03)</a></td>
+    <td>Deployed a VM to observe brute-force attacks and record external threats using actual failed RDP login attempts
 </td>
   </tr>
   <tr>
     <td>Protect</td>
-    <td>Platform Security<br> (PR.PS-04)</td>
-    <td>Configured VM and Monitoring Agent to generate and forward Windows Security Event logs to Log Analytics Workspace for continuous monitoring
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/pr/pr-ps/pr-ps-04/">Platform Security<br> (PR.PS-04)</a></td>
+    <td>Configured VM and monitoring agent to generate and forward security event logs to Log Analytics Workspace for continuous monitoring
 </td>
   </tr>
   <tr>
     <td>Detect</td>
-    <td>Continuous Monitoring<br> (DE.CM-01)</td>
-    <td>Used Microsoft Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring<br> (DE.CM-01)</a></td>
+    <td>Used Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
 </td>
   </tr>
   <tr>
     <td>Detect</td>
-    <td>Adverse Event Analysis<br> (DE.AE-02)</td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-ae/de-ae-02/">Adverse Event Analysis (DE.AE-02)</a></td>
     <td>Used Sentinel and KQL to continuously monitor and analyze failed RDP login attempts, identifying suspicious patterns and attacker behavior
 </td>
   </tr>
   <tr>
     <td>Detect</td>
-    <td>Adverse Event Analysis<br> (DE.AE-03)</td>
-    <td>Correlated data from two sources: Windows Security Event logs and a geolocation IP watchlist to enrich logs with attacker location data
-</td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-ae/de-ae-03/">Adverse Event Analysis (DE.AE-03)</a></td>
+    <td>Correlated security events with external IP data using a custom watchlist, enriching logs with geographic context to pinpoint the origin of malicious login attempts</td>
   </tr>
 </table>
 <br>
