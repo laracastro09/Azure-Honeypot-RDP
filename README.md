@@ -258,6 +258,6 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
   </li>
 </ul>
 <br>
-<p>This lab provided hands-on exposure to how threat actors exploit publicly exposed services, highlighting the importance of minimizing attack surfaces and monitoring for brute-force activity. It also gave me insight on how analysts detect, monitor, and respond using SIEM tools like Microsoft Sentinel.</p>
+<p>This lab provided hands-on exposure to how threat actors exploit publicly exposed services, highlighting the importance of minimizing attack surfaces and monitoring for brute-force activity. It also gave insight on how analysts detect and monitor threats using SIEM tools like Microsoft Sentinel.</p>
 
 
