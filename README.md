@@ -205,19 +205,19 @@ The Sentinel Workbook attack map dynamically updated in real time, correlating i
   </tr>
   <tr>
     <td>Identify</td>
-    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/id/id-ra/id-ra-03/">Risk Assessment<br> (ID.RA-03)</a></td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/id/id-ra/id-ra-03/">Risk Assessment (ID.RA-03)</a></td>
     <td>Deployed a VM to observe brute-force attacks and record external threats using actual failed RDP login attempts
 </td>
   </tr>
   <tr>
     <td>Protect</td>
-    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/pr/pr-ps/pr-ps-04/">Platform Security<br> (PR.PS-04)</a></td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/pr/pr-ps/pr-ps-04/">Platform Security (PR.PS-04)</a></td>
     <td>Configured VM and monitoring agent to generate and forward security event logs to Log Analytics Workspace for continuous monitoring
 </td>
   </tr>
   <tr>
     <td>Detect</td>
-    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring<br> (DE.CM-01)</a></td>
+    <td><a href="https://csf.tools/reference/nist-cybersecurity-framework/v2-0/de/de-cm/de-cm-01/">Continuous Monitoring (DE.CM-01)</a></td>
     <td>Used Sentinel to monitor failed login events (Event ID 4625), detecting signs of unauthorized access attempts
 </td>
   </tr>
